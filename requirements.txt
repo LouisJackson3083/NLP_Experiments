@@ -1,2 +1,5 @@
 nltk
 matplotlib
+gensim
+pandas
+plotly
