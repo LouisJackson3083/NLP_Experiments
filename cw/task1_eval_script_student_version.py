@@ -35,7 +35,9 @@ predictions = [[gold_standards[i][0],gold_standards[i][1], predictions[i][0]] fo
 gold_std_grouped = [list(it) for k, it in groupby(gold_standards, lambda p:p[0])]  
 pred_grouped = [list(it) for k, it in groupby(predictions, lambda p:p[0])]
 
-print('The following similarity scores may need checking:')
+print('The following simalarity scores may need checking:')
+total = 0
+wrong_hits = 0
 for idx in range(len(gold_std_grouped)):
     preds = pred_grouped[idx]
     gold_std = gold_std_grouped[idx]
@@ -47,8 +49,15 @@ for idx in range(len(gold_std_grouped)):
     gold_pairs = map(lambda x:1 if x[0][2]-x[1][2] > 0 else 0, gold_pairs_)
     # Check if your prediction gives the same relative order as the gold standard
     out_arr = np.subtract(np.array(list(pred_pairs)), np.array(list(gold_pairs)))
+    total+=len(out_arr)
     incorr = np.nonzero(out_arr)
+    wrong_hits += len(incorr[0])
     for item in incorr[0]:
         print("({},{}) similarity score: {}, gold ranking: {}".format(pred_pairs_[item][0][0], pred_pairs_[item][0][1], pred_pairs_[item][0][2], gold_pairs_[item][0][2]))
         print("({},{}) similarity score: {}, gold ranking: {}".format(pred_pairs_[item][1][0], pred_pairs_[item][1][1], pred_pairs_[item][1][2], gold_pairs_[item][1][2]))
         print("----------------------------")
+
+# Accuracy = hit/total number of permutations 
+# We consider a hit as the predicted similarity scores' relative order between two pairs is the same as gold ranking
+print("Accuracy: {}".format(1-wrong_hits/total))
+        

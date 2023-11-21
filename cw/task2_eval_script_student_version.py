@@ -27,10 +27,11 @@ def read_ans_file(file_name):
 
 def read_val_file(file_name):
     """Read csv file as a list and sort it by ids"""
-    with open(file_name) as f:
+    print(file_name)
+    with open(file_name, encoding='utf-8') as f:
         reader = csv.reader(f)
         data = [item[:1]+item[3:] for item in list(reader)][1:]
-    data = process_data(data[:10])
+    data = process_data(data)
     return data
 
 predictions = read_ans_file(pred_f_name)
@@ -58,15 +59,22 @@ FN_TP = np.count_nonzero(gold_standard_array == 1, axis=1)
 movie_level_precision = 1 - np.divide(FP, TP_FP, out=np.ones_like(FP, dtype=float), where=TP_FP!=0)
 movie_level_recall = 1 - np.divide(FN, FN_TP, out=np.ones_like(FN, dtype=float), where=FN_TP!=0)
 
+precision = np.mean(movie_level_precision)
+recall = np.mean(movie_level_recall)
+f1 = (2 * precision * recall) / (precision + recall)
 
 if __name__ == "__main__":
     print("Class level: ")
+    
+    class_f1s = []
+    
     for i in range(9):
+        class_f1 = (2 * class_level_precision[i] * class_level_recall[i]) / (class_level_precision[i] + class_level_recall[i])
+        if class_f1 >= 0:
+            class_f1s.append(class_f1)
+        else:
+            class_f1s.append(0)
         print("Class {0:2d} precision: {1:.4f} recall: {2:.4f}".format(i+1, class_level_precision[i], class_level_recall[i]))
     print("----------------------------")
-    print("Movie (document) level: ")
-    print("Precision: {0:.4f}".format(np.mean(movie_level_precision)))
-    print("Recall: {0:.4f}".format(np.mean(movie_level_recall)))
-    
-    
-    
+    print("Class Mean Precisions: {0:.4f} Recall: {1:.4f} F1 Score: {2:.4f}".format(np.mean(class_level_precision), np.mean(class_level_recall), np.mean(class_f1s)))
+    print("Movie Precision: {0:.4f} Recall: {1:.4f} F1 Score: {2:.4f}".format(precision, recall, f1))
