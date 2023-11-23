@@ -5,3 +5,5 @@ pandas
 plotly
 scikit-learn
 scikit-multilearn
+keras
+tensorflow
